@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE = "http://localhost:5062/api/pdf";
+const API_BASE = "https://fastpdf-backend.onrender.com/api/pdf";
 
 export default function App() {
   const [files, setFiles] = useState([]);
