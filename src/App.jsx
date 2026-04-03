@@ -5,7 +5,8 @@ const API_BASE = "https://fastpdf-backend.onrender.com/api/pdf";
 export default function App() {
   const [files, setFiles] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [imagesLoading, setImagesLoading] = useState(false);
 
   const downloadBlob = async (response, filename) => {
     if (!response.ok) {
@@ -34,7 +35,7 @@ export default function App() {
     files.forEach((file) => formData.append("files", file));
 
     try {
-      setLoading(true);
+      setMergeLoading(true);
       const res = await fetch(`${API_BASE}/merge`, {
         method: "POST",
         body: formData,
@@ -43,7 +44,7 @@ export default function App() {
     } catch (err) {
       alert(err.message);
     } finally {
-      setLoading(false);
+     setImagesLoading(false);
     }
   };
 
@@ -57,7 +58,7 @@ export default function App() {
     imageFiles.forEach((file) => formData.append("files", file));
 
     try {
-      setLoading(true);
+      setImagesLoading(true);
       const res = await fetch(`${API_BASE}/images-to-pdf`, {
         method: "POST",
         body: formData,
@@ -66,7 +67,7 @@ export default function App() {
     } catch (err) {
       alert(err.message);
     } finally {
-      setLoading(false);
+      setMergeLoading(false);
     }
   };
 
@@ -148,9 +149,9 @@ export default function App() {
               <button
                 className="primaryButton"
                 onClick={handleMerge}
-                disabled={loading}
+                disabled={mergeLoading}
               >
-                {loading ? "Processing..." : "Merge PDF"}
+                {mergeLoading ? "Processing..." : "Merge PDF"}
               </button>
             </div>
           </div>
@@ -175,9 +176,9 @@ export default function App() {
               <button
                 className="primaryButton"
                 onClick={handleImagesToPdf}
-                disabled={loading}
+                disabled={imagesLoading}
               >
-                {loading ? "Processing..." : "Convert to PDF"}
+                {imagesLoading ? "Processing..." : "Convert to PDF"}
               </button>
             </div>
           </div>
