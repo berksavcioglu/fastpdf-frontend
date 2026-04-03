@@ -23,6 +23,10 @@ export default function App() {
     a.click();
 
     window.URL.revokeObjectURL(url);
+    setTimeout(() => {
+  setMergeLoading(false);
+  setImagesLoading(false);
+}, 300);
   };
 
   const handleMerge = async () => {
