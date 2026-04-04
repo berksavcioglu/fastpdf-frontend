@@ -156,9 +156,20 @@ imageInputRef.current.value = "";
   type="file"
   multiple
   accept=".pdf"
-  onChange={(e) => setFiles([...e.target.files])}
+  onChange={(e) => {
+  const newFiles = Array.from(e.target.files);
+  setFiles((prev) => [...prev, ...newFiles]);
+  e.target.value = "";
+}}
 />
             </div>
+            {files.length > 0 && (
+  <ul>
+    {files.map((file, i) => (
+      <li key={i}>{file.name}</li>
+    ))}
+  </ul>
+)}
 
             <div className="actions">
               <button
@@ -184,9 +195,20 @@ imageInputRef.current.value = "";
   type="file"
   multiple
   accept=".jpg,.jpeg,.png,.bmp"
-  onChange={(e) => setImageFiles([...e.target.files])}
+  onChange={(e) => {
+  const newFiles = Array.from(e.target.files);
+  setImageFiles((prev) => [...prev, ...newFiles]);
+  e.target.value = "";
+}}
 />
             </div>
+            {imageFiles.length > 0 && (
+  <ul>
+    {imageFiles.map((file, i) => (
+      <li key={i}>{file.name}</li>
+    ))}
+  </ul>
+)}
 
             <div className="actions">
               <button
