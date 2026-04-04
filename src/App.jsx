@@ -1,12 +1,16 @@
 import { useState } from "react";
+ import { useRef } from "react";
 
 const API_BASE = "https://fastpdf-backend.onrender.com/api/pdf";
 
 export default function App() {
+ 
   const [files, setFiles] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [mergeLoading, setMergeLoading] = useState(false);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const fileInputRef = useRef(null);
+const imageInputRef = useRef(null);
 
   const downloadBlob = async (response, filename) => {
     if (!response.ok) {
@@ -45,6 +49,9 @@ export default function App() {
         body: formData,
       });
       await downloadBlob(res, "merged.pdf");
+      setFiles([]);
+fileInputRef.current.value = "";
+      
     } catch (err) {
       alert(err.message);
     } finally {
@@ -68,6 +75,9 @@ export default function App() {
         body: formData,
       });
       await downloadBlob(res, "images.pdf");
+      setImageFiles([]);
+imageInputRef.current.value = "";
+      setImageFiles([]);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -141,12 +151,13 @@ export default function App() {
             <div className="uploadBox">
               <p className="fileHint">Select at least 2 PDF files</p>
               <input
-                className="fileInput"
-                type="file"
-                multiple
-                accept=".pdf"
-                onChange={(e) => setFiles([...e.target.files])}
-              />
+  ref={fileInputRef}
+  className="fileInput"
+  type="file"
+  multiple
+  accept=".pdf"
+  onChange={(e) => setFiles([...e.target.files])}
+/>
             </div>
 
             <div className="actions">
@@ -168,12 +179,13 @@ export default function App() {
             <div className="uploadBox">
               <p className="fileHint">Select one or more images</p>
               <input
-                className="fileInput"
-                type="file"
-                multiple
-                accept=".jpg,.jpeg,.png,.bmp"
-                onChange={(e) => setImageFiles([...e.target.files])}
-              />
+  ref={imageInputRef}
+  className="fileInput"
+  type="file"
+  multiple
+  accept=".jpg,.jpeg,.png,.bmp"
+  onChange={(e) => setImageFiles([...e.target.files])}
+/>
             </div>
 
             <div className="actions">
