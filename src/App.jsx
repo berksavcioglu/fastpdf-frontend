@@ -1,16 +1,15 @@
-import { useState } from "react";
- import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const API_BASE = "https://fastpdf-backend.onrender.com/api/pdf";
 
 export default function App() {
- 
   const [files, setFiles] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [mergeLoading, setMergeLoading] = useState(false);
   const [imagesLoading, setImagesLoading] = useState(false);
+
   const fileInputRef = useRef(null);
-const imageInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
   const downloadBlob = async (response, filename) => {
     if (!response.ok) {
@@ -24,13 +23,11 @@ const imageInputRef = useRef(null);
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
+    document.body.appendChild(a);
     a.click();
+    a.remove();
 
     window.URL.revokeObjectURL(url);
-    setTimeout(() => {
-  setMergeLoading(false);
-  setImagesLoading(false);
-}, 300);
   };
 
   const handleMerge = async () => {
@@ -44,18 +41,22 @@ const imageInputRef = useRef(null);
 
     try {
       setMergeLoading(true);
+
       const res = await fetch(`${API_BASE}/merge`, {
         method: "POST",
         body: formData,
       });
+
       await downloadBlob(res, "merged.pdf");
+
       setFiles([]);
-fileInputRef.current.value = "";
-      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Merge failed");
     } finally {
-     setImagesLoading(false);
+      setMergeLoading(false);
     }
   };
 
@@ -70,19 +71,45 @@ fileInputRef.current.value = "";
 
     try {
       setImagesLoading(true);
+
       const res = await fetch(`${API_BASE}/images-to-pdf`, {
         method: "POST",
         body: formData,
       });
+
       await downloadBlob(res, "images.pdf");
+
       setImageFiles([]);
-imageInputRef.current.value = "";
-      setImageFiles([]);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Conversion failed");
     } finally {
-      setMergeLoading(false);
+      setImagesLoading(false);
     }
+  };
+
+  const removePdfFile = (indexToRemove) => {
+    setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeImageFile = (indexToRemove) => {
+    setImageFiles((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+  const handlePdfInputChange = (e) => {
+    const newFiles = Array.from(e.target.files || []);
+    setFiles((prev) => [...prev, ...newFiles]);
+    e.target.value = "";
+  };
+
+  const handleImageInputChange = (e) => {
+    const newFiles = Array.from(e.target.files || []);
+    setImageFiles((prev) => [...prev, ...newFiles]);
+    e.target.value = "";
   };
 
   return (
@@ -106,8 +133,12 @@ imageInputRef.current.value = "";
           </p>
 
           <div className="heroButtons">
-            <button className="primaryHeroBtn">Start Free</button>
-            <button className="secondaryHeroBtn">No sign-up required</button>
+            <button className="primaryHeroBtn" type="button">
+              Start Free
+            </button>
+            <button className="secondaryHeroBtn" type="button">
+              No sign-up required
+            </button>
           </div>
         </div>
 
@@ -138,9 +169,7 @@ imageInputRef.current.value = "";
 
       <section className="toolsSection">
         <h2 className="sectionTitle">Choose a tool</h2>
-        <p className="sectionDesc">
-          Designed to look good and work fast.
-        </p>
+        <p className="sectionDesc">Designed to look good and work fast.</p>
 
         <div className="grid">
           <div className="card">
@@ -149,33 +178,43 @@ imageInputRef.current.value = "";
             <p>Combine multiple PDF files into one polished document.</p>
 
             <div className="uploadBox">
-              <p className="fileHint">Select at least 2 PDF files</p>
+              <p className="fileHint">
+                Select files one by one or all at once. Minimum 2 PDF files.
+              </p>
+
               <input
-  ref={fileInputRef}
-  className="fileInput"
-  type="file"
-  multiple
-  accept=".pdf"
-  onChange={(e) => {
-  const newFiles = Array.from(e.target.files);
-  setFiles((prev) => [...prev, ...newFiles]);
-  e.target.value = "";
-}}
-/>
+                ref={fileInputRef}
+                className="fileInput"
+                type="file"
+                multiple
+                accept=".pdf"
+                onChange={handlePdfInputChange}
+              />
             </div>
+
             {files.length > 0 && (
-  <ul>
-    {files.map((file, i) => (
-      <li key={i}>{file.name}</li>
-    ))}
-  </ul>
-)}
+              <div className="selectedFiles">
+                {files.map((file, i) => (
+                  <div className="fileChip" key={`${file.name}-${i}`}>
+                    <span className="fileChipName">{file.name}</span>
+                    <button
+                      type="button"
+                      className="fileChipRemove"
+                      onClick={() => removePdfFile(i)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="actions">
               <button
                 className="primaryButton"
                 onClick={handleMerge}
                 disabled={mergeLoading}
+                type="button"
               >
                 {mergeLoading ? "Processing..." : "Merge PDF"}
               </button>
@@ -188,33 +227,43 @@ imageInputRef.current.value = "";
             <p>Turn JPG, PNG, JPEG, or BMP images into a single PDF file.</p>
 
             <div className="uploadBox">
-              <p className="fileHint">Select one or more images</p>
+              <p className="fileHint">
+                Add one or more images. You can keep adding files step by step.
+              </p>
+
               <input
-  ref={imageInputRef}
-  className="fileInput"
-  type="file"
-  multiple
-  accept=".jpg,.jpeg,.png,.bmp"
-  onChange={(e) => {
-  const newFiles = Array.from(e.target.files);
-  setImageFiles((prev) => [...prev, ...newFiles]);
-  e.target.value = "";
-}}
-/>
+                ref={imageInputRef}
+                className="fileInput"
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.bmp"
+                onChange={handleImageInputChange}
+              />
             </div>
+
             {imageFiles.length > 0 && (
-  <ul>
-    {imageFiles.map((file, i) => (
-      <li key={i}>{file.name}</li>
-    ))}
-  </ul>
-)}
+              <div className="selectedFiles">
+                {imageFiles.map((file, i) => (
+                  <div className="fileChip" key={`${file.name}-${i}`}>
+                    <span className="fileChipName">{file.name}</span>
+                    <button
+                      type="button"
+                      className="fileChipRemove"
+                      onClick={() => removeImageFile(i)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="actions">
               <button
                 className="primaryButton"
                 onClick={handleImagesToPdf}
                 disabled={imagesLoading}
+                type="button"
               >
                 {imagesLoading ? "Processing..." : "Convert to PDF"}
               </button>

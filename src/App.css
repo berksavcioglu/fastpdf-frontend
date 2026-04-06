@@ -378,3 +378,44 @@ body {
     padding: 20px;
   }
 }
+.selectedFiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.fileChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.fileChipName {
+  color: #e2e8f0;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.fileChipRemove {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.fileChipRemove:hover {
+  background: rgba(239, 68, 68, 0.28);
+}
